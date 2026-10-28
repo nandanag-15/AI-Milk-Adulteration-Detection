@@ -1,37 +1,60 @@
-# Milk Adulteration Detection — Backend (Flask)
 
-Serves the `analyzer_12` Random Forest. Output is a **preliminary ML classification,
-not a definitive food-safety determination**.
+# AI-Powered Milk Adulteration Detection System
 
-## Run
+An AI Blend for Engineers project that uses machine learning to classify milk samples based on physicochemical parameters.
+
+## Project Overview
+
+The system uses a trained Random Forest model to classify milk samples into the categories supported by the model. It provides a Flask API for predictions and prediction history.
+
+The results are preliminary ML classifications and are not a definitive food-safety determination.
+
+## Team Members
+
+- Nandana G
+- Reeha Sachin
+- Keerthana P R
+- Amisha Devi U
+- Devanarayanan P
+
+## Technology Stack
+
+- Python
+- Flask
+- scikit-learn
+- Pandas and NumPy
+- SQLite
+- HTML, CSS and JavaScript
+
+## Backend Setup
+
+Install the required Python packages:
+
 ```bash
 pip install -r requirements.txt
-# put your trained model at models/analyzer_12_random_forest.joblib
-# (or for a dev stub: python scripts/make_dummy_model.py)
-python wsgi.py            # dev
-# production: gunicorn -w 2 -b 0.0.0.0:8000 wsgi:app
 ```
-API at http://localhost:8000
 
-## Endpoints
-| Method | Path | Purpose |
+Run the Flask application:
+
+```bash
+python app.py
+```
+
+The API runs locally on port 8000.
+
+## API Endpoints
+
+| Method | Endpoint | Purpose |
 |---|---|---|
-| GET | `/health` | status |
-| GET | `/features` | the 12 features + labels |
-| POST | `/predict` | one sample → label + probabilities |
-| POST | `/predict/batch` | up to 1000 samples |
-| GET | `/history` | stored predictions (if enabled) |
+| GET | `/health` | Check application status |
+| GET | `/features` | Retrieve model features and labels |
+| POST | `/predict` | Predict a sample's class |
+| GET | `/history` | Retrieve stored predictions when enabled |
 
-Example body: `{"Cells":..,"QValue":..,"Fat":..,"Protein":..,"Lactose":..,"Solids":..,"FFA":..,"Citrate":..,"FrzPoint":..,"SNF":..,"MUN":..,"Casein":..}`
+## Model
 
-## Open decisions (from the project notes)
-- **Valid ranges/units:** not enforced until confirmed. Once known, create a JSON
-  like `{"Fat":[0,10],"FrzPoint":[-0.6,-0.4]}` and set `MILK_RANGES_PATH`.
-- **History storage:** off by default. `MILK_ENABLE_HISTORY=true` uses SQLite
-  (`app/history.py`), which is easy to swap for the team's chosen DB.
+The application uses the project's trained Random Forest model and its metadata files in the `models/` directory.
 
-## Config (env vars, prefix `MILK_`)
-`MODEL_PATH`, `MODEL_NAME`, `ENABLE_HISTORY`, `DB_PATH`, `RANGES_PATH`, `CORS_ORIGINS`, `MAX_BATCH`
+## Limitations
 
-## Tests
-`pytest` (needs a model file in `models/`)
+Predictions depend on the training data and model performance. The application is intended for preliminary classification, not certified milk-quality testing.
