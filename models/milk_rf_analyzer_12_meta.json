@@ -1,0 +1,27 @@
+{
+  "features": [
+    "Cells",
+    "QValue",
+    "Fat",
+    "Protein",
+    "Lactose",
+    "Solids",
+    "FFA",
+    "Citrate",
+    "FrzPoint",
+    "SNF",
+    "MUN",
+    "Casein"
+  ],
+  "classes": [
+    "bicarbonate",
+    "formaldehyde",
+    "peroxide",
+    "raw",
+    "starch",
+    "sucrose"
+  ],
+  "sklearn_version": "1.9.1",
+  "trained_on": "train split only (785 rows)",
+  "selected_model": true
+}
