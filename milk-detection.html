@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Milk Adulteration Detection</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f5f2;
+            margin: 0;
+            padding: 20px;
+            color: #26352c;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #167344;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 7px;
+        }
+
+        input {
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            font-size: 15px;
+            width: 100%;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #16834b;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 25px;
+            background: #16834b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #106638;
+        }
+
+        button:disabled {
+            background: #8aab98;
+            cursor: not-allowed;
+        }
+
+        #message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 7px;
+            display: none;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .loading {
+            display: block !important;
+            background: #fff4ce;
+            color: #765600;
+        }
+
+        .success {
+            display: block !important;
+            background: #dff5e5;
+            color: #17652e;
+        }
+
+        .error {
+            display: block !important;
+            background: #ffe3e3;
+            color: #a51d1d;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 18px;
+            background: #edf7ef;
+            border-left: 5px solid #16834b;
+            border-radius: 7px;
+            display: none;
+            overflow-wrap: anywhere;
+        }
+
+        .result h2 {
+            margin-top: 0;
+            color: #167344;
+        }
+
+        .result pre {
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .note {
+            font-size: 13px;
+            color: #666;
+            margin-top: 20px;
+        }
+
+        /* ---- Added: navigation and extra sections (same palette, radius, spacing) ---- */
+
+        .navbar {
+            max-width: 850px;
+            margin: 0 auto 20px;
+            background: white;
+            padding: 12px 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .brand {
+            font-weight: bold;
+            color: #167344;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            padding: 8px 14px;
+            border-radius: 7px;
+            color: #26352c;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .nav-links a:hover {
+            background: #edf7ef;
+        }
+
+        .nav-links a[aria-current="page"] {
+            background: #16834b;
+            color: white;
+        }
+
+        a:focus-visible {
+            outline: 2px solid #16834b;
+            outline-offset: 2px;
+        }
+
+        h2.section-title {
+            color: #167344;
+            margin: 25px 0 10px;
+        }
+
+        .container p,
+        .container li {
+            line-height: 1.6;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-top: 10px;
+        }
+
+        .card {
+            padding: 18px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+        }
+
+        .card h3 {
+            margin: 0 0 8px;
+            color: #167344;
+        }
+
+        .card p {
+            margin: 0;
+        }
+
+        .info {
+            padding: 18px;
+            background: #edf7ef;
+            border-left: 5px solid #16834b;
+            border-radius: 7px;
+            overflow-wrap: anywhere;
+        }
+
+        .info h2 {
+            margin-top: 0;
+            color: #167344;
+        }
+
+        .info p:last-child {
+            margin-bottom: 0;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            margin-top: 25px;
+            background: #16834b;
+            color: white;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #106638;
+        }
+
+        .param-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 0;
+            margin: 10px 0 0;
+            list-style: none;
+        }
+
+        .param-list li {
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+
+        .page-footer {
+            max-width: 850px;
+            margin: 20px auto 0;
+            text-align: center;
+        }
+
+
+        .history-record {
+            border: 1px solid #cbd8cf;
+            border-left: 5px solid #16834b;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+            background: #fff;
+            overflow-wrap: anywhere;
+        }
+
+        .history-record h3 {
+            color: #167344;
+            margin: 0 0 10px;
+        }
+
+        .history-meta {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px 16px;
+            margin: 10px 0;
+        }
+
+        .history-meta p {
+            margin: 0;
+        }
+
+        .history-record details {
+            margin-top: 12px;
+        }
+
+        .history-record summary {
+            cursor: pointer;
+            color: #167344;
+            font-weight: bold;
+        }
+
+        .history-inputs {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 6px 16px;
+            margin-top: 12px;
+        }
+
+        .history-inputs div {
+            padding: 7px;
+            background: #f0f5f2;
+            border-radius: 5px;
+        }
+
+        #historyMessage {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 7px;
+            display: none;
+            overflow-wrap: anywhere;
+        }
+
+        #historyMessage.loading {
+            display: block;
+            background: #fff4ce;
+            color: #765600;
+        }
+
+        #historyMessage.success {
+            display: block;
+            background: #dff5e5;
+            color: #17652e;
+        }
+
+        #historyMessage.error {
+            display: block;
+            background: #ffe3e3;
+            color: #a51d1d;
+        }
+
+        .history-empty {
+            padding: 18px;
+            background: #edf7ef;
+            border-left: 5px solid #16834b;
+            border-radius: 7px;
+        }
+\n        @media (max-width: 600px) {
+            .form-grid,
+            .cards,
+            .history-meta,
+            .history-inputs {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 18px;
+            }
+
+            .navbar {
+                padding: 12px 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar" aria-label="Main navigation">
+    <span class="brand">Milk Adulteration Detection</span>
+    <div class="nav-links">
+        <a href="#home" data-nav="home">Home</a>
+        <a href="#test" data-nav="test">Test Milk</a>
+        <a href="#history" data-nav="history">History</a>
+        <a href="#about" data-nav="about">About</a>
+    </div>
+</nav>
+
+<!-- ===================== HOME ===================== -->
+<div class="container" id="page-home">
+
+    <h1>AI Milk Adulteration Detection</h1>
+
+    <p class="subtitle">
+        Check a milk sample using a trained machine-learning model.
+    </p>
+
+    <p>
+        This system takes the measured parameters of a milk sample and sends
+        them to a prediction model to check whether the sample shows signs of
+        adulteration.
+    </p>
+
+    <h2 class="section-title">How it works</h2>
+
+    <div class="cards">
+        <div class="card">
+            <h3>1. Enter values</h3>
+            <p>Fill in all 12 sample parameters on the Test Milk page.</p>
+        </div>
+        <div class="card">
+            <h3>2. Send to model</h3>
+            <p>The values are sent to the backend, which runs the trained model.</p>
+        </div>
+        <div class="card">
+            <h3>3. View result</h3>
+            <p>The prediction returned by the backend is shown on the page.</p>
+        </div>
+    </div>
+
+    <a class="btn" href="#test">Test a Milk Sample</a>
+
+</div>
+
+<!-- ===================== TEST MILK (original form, unchanged) ===================== -->
+<div class="container" id="page-test" hidden>
+
+    <h1>AI Milk Adulteration Detection</h1>
+
+    <p class="subtitle">
+        Enter the milk sample parameters to check the model's prediction.
+    </p>
+
+    <form id="milkForm">
+
+        <div class="form-grid">
+
+            <div class="form-group">
+                <label for="Cells">Cells</label>
+                <input type="number" id="Cells" name="Cells"
+                       step="any" required>
+            </div>
+
+            <div class="form-group">
+                <label for="QValue">QValue</label>
+                <input type="number" id="QValue" name="QValue"
+                       step="any" required>
+            </div>
+
+            <div class="form-group">
+                <label for="Fat">Fat</label>
+                <input type="number" id="Fat" name="Fat"
+                       step="any" required>
+            </div>
+
+            <div class="form-group">
+                <label for="Protein">Protein</label>
+                <input type="number" id="Protein" name="Protein"
+                       step="any" required>
+            </div>
+
+            <div class="form-group">
+                <label for="Lactose">Lactose</label>
+                <input type="number" id="Lactose" name="Lactose"
+                       step="any" required>
+            </div>
+
+            <div class="form-group">
+                <label for="Solids">Solids</label>
+                <input type="number" id="Solids" name="Solids"
+                       step="any" required>
+            </div>
+
+            <div class="form-group">
+                <label for="FFA">FFA</label>
+                <input type="number" id="FFA" name="FFA"
+                       step="any" required>
+            </div>
+
+            <div class="form-group">
+                <label for="Citrate">Citrate</label>
+                <input type="number" id="Citrate" name="Citrate"
+                       step="any" required>
+            </div>
+
+            <div class="form-group">
+                <label for="FrzPoint">FrzPoint</label>
+                <input type="number" id="FrzPoint" name="FrzPoint"
+                       step="any" required>
+            </div>
+
+            <div class="form-group">
+                <label for="SNF">SNF</label>
+                <input type="number" id="SNF" name="SNF"
+                       step="any" required>
+            </div>
+
+            <div class="form-group">
+                <label for="MUN">MUN</label>
+                <input type="number" id="MUN" name="MUN"
+                       step="any" required>
+            </div>
+
+            <div class="form-group">
+                <label for="Casein">Casein</label>
+                <input type="number" id="Casein" name="Casein"
+                       step="any" required>
+            </div>
+
+        </div>
+
+        <button type="submit" id="submitButton">
+            Check Milk Sample
+        </button>
+
+    </form>
+
+    <div id="message" role="status" aria-live="polite"></div>
+
+    <div id="result" class="result" aria-live="polite">
+        <h2>Prediction Result</h2>
+        <div id="resultContent"></div>
+    </div>
+
+    <p class="note">
+        Note: The prediction requires a working backend connected to the
+        trained machine-learning model. Enter values using the units and
+        ranges specified by your project dataset.
+    </p>
+
+</div>
+
+<!-- ===================== HISTORY ===================== -->
+<div class="container" id="page-history" hidden>
+
+    <h1>Test History</h1>
+
+    <p class="subtitle">
+        Previous milk sample predictions saved in the database.
+    </p>
+
+    <button type="button" id="refreshHistoryButton">Refresh History</button>
+    <div id="historyMessage" role="status" aria-live="polite"></div>
+    <div id="historyContent"></div>
+
+    <a class="btn" href="#test">Go to Test Milk</a>
+
+</div>
+
+<!-- ===================== ABOUT ===================== -->
+<div class="container" id="page-about" hidden>
+
+    <h1>About</h1>
+
+    <p class="subtitle">
+        AI-Powered Milk Adulteration Detection System
+    </p>
+
+    <p>
+        This project uses a trained machine-learning model to analyse the
+        measured properties of a milk sample and predict whether it may be
+        adulterated. This website is the front end: it collects the sample
+        values, sends them to the backend API, and displays the response.
+    </p>
+
+    <h2 class="section-title">Sample parameters</h2>
+
+    <p>The model uses the following 12 inputs:</p>
+
+    <ul class="param-list">
+        <li>Cells</li>
+        <li>QValue</li>
+        <li>Fat</li>
+        <li>Protein</li>
+        <li>Lactose</li>
+        <li>Solids</li>
+        <li>FFA</li>
+        <li>Citrate</li>
+        <li>FrzPoint</li>
+        <li>SNF</li>
+        <li>MUN</li>
+        <li>Casein</li>
+    </ul>
+
+    <h2 class="section-title">Please note</h2>
+
+    <p>
+        Predictions come from the connected model and depend on the quality of
+        the input values. Use the units and ranges defined by the project
+        dataset, and confirm important results with standard laboratory
+        testing.
+    </p>
+
+</div>
+
+<script>
+    /*
+      IMPORTANT:
+      Ask your CS teammate for the actual backend API URL.
+
+      Example only:
+      const API_URL = "http://127.0.0.1:5000/predict";
+
+      Do not use the example unless your teammate's backend runs
+      at that address and provides the /predict endpoint.
+    */
+
+    const API_URL = "http://127.0.0.1:8000/predict";
+
+    const form = document.getElementById("milkForm");
+    const message = document.getElementById("message");
+    const result = document.getElementById("result");
+    const resultContent = document.getElementById("resultContent");
+    const submitButton = document.getElementById("submitButton");
+
+    const parameterNames = [
+        "Cells",
+        "QValue",
+        "Fat",
+        "Protein",
+        "Lactose",
+        "Solids",
+        "FFA",
+        "Citrate",
+        "FrzPoint",
+        "SNF",
+        "MUN",
+        "Casein"
+    ];
+
+    function showMessage(text, type) {
+        message.textContent = text;
+        message.className = type;
+    }
+
+    function hideMessage() {
+        message.textContent = "";
+        message.style.display = "none";
+        message.className = "";
+    }
+
+    function showResult(data) {
+        resultContent.replaceChildren();
+
+        if (data !== null && typeof data === "object") {
+            const list = document.createElement("dl");
+
+            for (const [key, value] of Object.entries(data)) {
+                const term = document.createElement("dt");
+                const description = document.createElement("dd");
+
+                term.textContent = key;
+                description.textContent =
+                    typeof value === "object" && value !== null
+                        ? JSON.stringify(value, null, 2)
+                        : String(value);
+
+                term.style.fontWeight = "bold";
+                term.style.marginTop = "10px";
+
+                list.appendChild(term);
+                list.appendChild(description);
+            }
+
+            resultContent.appendChild(list);
+        } else {
+            const output = document.createElement("p");
+            output.textContent = String(data);
+            resultContent.appendChild(output);
+        }
+
+        result.style.display = "block";
+    }
+
+    form.addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        hideMessage();
+        result.style.display = "none";
+
+        const milkData = {};
+
+        // Check that every required parameter has a valid number.
+        for (const name of parameterNames) {
+            const input = document.getElementById(name);
+            const rawValue = input.value.trim();
+
+            if (rawValue === "") {
+                showMessage(
+                    "Oru value missing aanu. Please fill in all fields.",
+                    "error"
+                );
+                input.focus();
+                return;
+            }
+
+            const value = Number(rawValue);
+
+            if (!Number.isFinite(value)) {
+                showMessage(
+                    "Invalid value aanu. Please enter valid numeric values.",
+                    "error"
+                );
+                input.focus();
+                return;
+            }
+
+            // These parameters are assumed to be non-negative.
+            // Confirm the correct rules with the project dataset.
+            if (name !== "FrzPoint" && value < 0) {
+                showMessage(
+                    name + " value negative aakan paadilla. Please check it.",
+                    "error"
+                );
+                input.focus();
+                return;
+            }
+
+            milkData[name] = value;
+        }
+
+        // A backend URL is required to receive a real prediction.
+        if (!API_URL) {
+            showMessage(
+                "Backend connect cheythittilla. Please ask your CS friend " +
+                "for the backend API URL. Input values are valid, but " +
+                "prediction kittan backend connect cheyyanam.",
+                "error"
+            );
+
+            // Display the submitted values for checking.
+            showResult({
+                status: "Backend not connected",
+                submitted_values: milkData
+            });
+
+            return;
+        }
+
+        submitButton.disabled = true;
+        submitButton.textContent = "Processing...";
+
+        showMessage(
+            "Request processing aanu. Please wait...",
+            "loading"
+        );
+
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(milkData)
+            });
+
+            const responseText = await response.text();
+
+            let responseData;
+
+            try {
+                responseData = JSON.parse(responseText);
+            } catch {
+                throw new Error(
+                    "Backend valid JSON response alla return cheythath."
+                );
+            }
+
+            if (!response.ok) {
+                const backendMessage =
+                    responseData.message || responseData.error ||
+                    "Backend request failed.";
+
+                throw new Error(backendMessage);
+            }
+
+            showMessage(
+                "Prediction completed! Results shown below .",
+                "success"
+            );
+
+            showResult(responseData);
+
+        } catch (error) {
+            console.error("Backend error:", error);
+
+            showMessage(
+                "Request failed. Is backend running, " +
+                "Check if API URL is correct.\n" +
+                "Details: " + error.message,
+                "error"
+            );
+
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = "Check Milk Sample";
+        }
+    });
+</script>
+
+
+<script>
+    /* Load persisted prediction records from the Flask /history endpoint. */
+    (function () {
+        const HISTORY_URL = "http://127.0.0.1:8000/history";
+        const historyMessage = document.getElementById("historyMessage");
+        const historyContent = document.getElementById("historyContent");
+        const refreshButton = document.getElementById("refreshHistoryButton");
+
+        function setHistoryMessage(text, type) {
+            historyMessage.textContent = text;
+            historyMessage.className = type || "";
+        }
+
+        function addTextElement(parent, tag, text) {
+            const element = document.createElement(tag);
+            element.textContent = text;
+            parent.appendChild(element);
+            return element;
+        }
+
+        function displayHistory(records) {
+            historyContent.replaceChildren();
+
+            if (!Array.isArray(records)) {
+                throw new Error("The history endpoint did not return a list of records.");
+            }
+
+            if (records.length === 0) {
+                const empty = document.createElement("div");
+                empty.className = "history-empty";
+                addTextElement(empty, "h2", "No history available");
+                addTextElement(empty, "p", "No saved predictions were returned by the backend yet.");
+                historyContent.appendChild(empty);
+                setHistoryMessage("History loaded successfully. No records found.", "success");
+                return;
+            }
+
+            records.forEach(function (record, index) {
+                const card = document.createElement("article");
+                card.className = "history-record";
+
+                const recordId = record.id !== undefined ? record.id : (index + 1);
+                addTextElement(card, "h3", "Prediction #" + recordId);
+
+                const meta = document.createElement("div");
+                meta.className = "history-meta";
+
+                const date = record.created_at || "Date unavailable";
+                const label = record.label || "Unknown";
+                const confidence = Number(record.confidence);
+                const confidenceText = Number.isFinite(confidence)
+                    ? (confidence <= 1 ? (confidence * 100).toFixed(2) : confidence.toFixed(2)) + "%"
+                    : "Unavailable";
+                const model = record.model_name || record.model || "Unknown model";
+
+                [
+                    ["Date", date],
+                    ["Predicted label", label],
+                    ["Confidence", confidenceText],
+                    ["Model", model]
+                ].forEach(function (pair) {
+                    const p = document.createElement("p");
+                    const strong = document.createElement("strong");
+                    strong.textContent = pair[0] + ": ";
+                    p.appendChild(strong);
+                    p.appendChild(document.createTextNode(pair[1]));
+                    meta.appendChild(p);
+                });
+
+                card.appendChild(meta);
+
+                const details = document.createElement("details");
+                addTextElement(details, "summary", "View input values and class probabilities");
+
+                const inputs = record.input && typeof record.input === "object"
+                    ? record.input
+                    : record;
+
+                const inputGrid = document.createElement("div");
+                inputGrid.className = "history-inputs";
+
+                const parameterNames = [
+                    "Cells", "QValue", "Fat", "Protein", "Lactose", "Solids",
+                    "FFA", "Citrate", "FrzPoint", "SNF", "MUN", "Casein"
+                ];
+
+                parameterNames.forEach(function (name) {
+                    if (inputs[name] !== undefined && inputs[name] !== null) {
+                        const value = document.createElement("div");
+                        const strong = document.createElement("strong");
+                        strong.textContent = name + ": ";
+                        value.appendChild(strong);
+                        value.appendChild(document.createTextNode(String(inputs[name])));
+                        inputGrid.appendChild(value);
+                    }
+                });
+
+                details.appendChild(inputGrid);
+
+                const probabilities = record.probabilities;
+                if (probabilities && typeof probabilities === "object") {
+                    addTextElement(details, "h4", "Class probabilities");
+                    const probabilityList = document.createElement("ul");
+                    Object.entries(probabilities).forEach(function (entry) {
+                        const probability = Number(entry[1]);
+                        const valueText = Number.isFinite(probability)
+                            ? (probability * 100).toFixed(2) + "%"
+                            : String(entry[1]);
+                        addTextElement(probabilityList, "li", entry[0] + ": " + valueText);
+                    });
+                    details.appendChild(probabilityList);
+                }
+
+                card.appendChild(details);
+                historyContent.appendChild(card);
+            });
+
+            setHistoryMessage("Loaded " + records.length + " saved prediction(s).", "success");
+        }
+
+        async function loadHistory() {
+            refreshButton.disabled = true;
+            refreshButton.textContent = "Loading...";
+            setHistoryMessage("Loading saved predictions...", "loading");
+
+            try {
+                const response = await fetch(HISTORY_URL, { method: "GET" });
+                const text = await response.text();
+                let data;
+
+                try {
+                    data = JSON.parse(text);
+                } catch {
+                    throw new Error("The backend did not return valid JSON.");
+                }
+
+                if (!response.ok) {
+                    throw new Error(data.message || data.error || "History request failed.");
+                }
+
+                displayHistory(data);
+            } catch (error) {
+                console.error("History loading error:", error);
+                historyContent.replaceChildren();
+                setHistoryMessage(
+                    "Could not load history. Make sure the Flask backend is running at " +
+                    HISTORY_URL + ". Details: " + error.message,
+                    "error"
+                );
+            } finally {
+                refreshButton.disabled = false;
+                refreshButton.textContent = "Refresh History";
+            }
+        }
+
+        refreshButton.addEventListener("click", loadHistory);
+        window.addEventListener("hashchange", function () {
+            if (window.location.hash === "#history") {
+                loadHistory();
+            }
+        });
+
+        if (window.location.hash === "#history") {
+            loadHistory();
+        }
+    })();
+</script>
+
+<script>
+    /* Added: simple section navigation (show one section at a time). */
+    (function () {
+        const pageNames = ["home", "test", "history", "about"];
+
+        function showPage() {
+            let name = window.location.hash.replace("#", "");
+            if (!pageNames.includes(name)) {
+                name = "home";
+            }
+
+            pageNames.forEach(function (p) {
+                document.getElementById("page-" + p).hidden = (p !== name);
+            });
+
+            document.querySelectorAll("[data-nav]").forEach(function (link) {
+                if (link.dataset.nav === name) {
+                    link.setAttribute("aria-current", "page");
+                } else {
+                    link.removeAttribute("aria-current");
+                }
+            });
+
+            window.scrollTo(0, 0);
+        }
+
+        window.addEventListener("hashchange", showPage);
+        showPage();
+    })();
+</script>
+
+</body>
+</html>
